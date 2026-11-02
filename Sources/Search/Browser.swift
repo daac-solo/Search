@@ -877,12 +877,19 @@ final class Browser: NSObject, ObservableObject {
         guard let offer = offering else { return }
         offering = nil
         let login = offer.login
-        guard Vault.save(host: login.host, user: login.user, password: login.password, used: Date(), clear: login.clear) else {
-            announce("The keychain refused it")
-            return
+        let changed = offer.changed
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let ok = Vault.save(host: login.host, user: login.user, password: login.password, used: Date(), clear: login.clear)
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if ok {
+                    self.relist()
+                    self.announce(changed ? "Password updated for \(login.host)" : "Password saved for \(login.host)")
+                } else {
+                    self.announce("The keychain refused it")
+                }
+            }
         }
-        relist()
-        announce(offer.changed ? "Password updated for \(login.host)" : "Password saved for \(login.host)")
     }
 
     func dropOffer() { offering = nil }
@@ -4121,9 +4128,8 @@ final class Browser: NSObject, ObservableObject {
         if assisting != nil { closeAssistant() }
         // An extension's panel opened for one tab goes and comes with it.
         sidePanelFollows(tab)
-        // Coming back to the tab whose video is out brings it home first, so
-        // it is never lifted and landed in the same breath.
-        if floating == tab.id { land() }
+        // Local change: coming back to the tab whose video is out leaves it
+        // out — the floating window stays until closed by hand.
         if pictured == tab.id { unpicture() }
         if floatPrevious { leaving() }
         activeID = tab.id
