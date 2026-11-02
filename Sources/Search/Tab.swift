@@ -603,6 +603,9 @@ final class Tab: ObservableObject, Identifiable {
         controller.addUserScript(
             WKUserScript(source: PasskeyRelay.bridge, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: Web.world)
         )
+        controller.addUserScript(
+            WKUserScript(source: AdSkip.script, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page)
+        )
         guard !css.isEmpty else { return }
         controller.addUserScript(
             WKUserScript(source: Veiling.style(css), injectionTime: .atDocumentStart, forMainFrameOnly: true, in: Web.world)
