@@ -3,7 +3,13 @@ import Foundation
 enum AdSkip {
     static let script = """
     (function() {
-        if (location.hostname.indexOf('aiyifan') === -1) return;
+        // The same site under its mirror domains — it moves often.
+        var adHosts = ['aiyifan', 'iyf.tv', 'yfsp', 'kubb.tv'];
+        var adMatch = false;
+        for (var h = 0; h < adHosts.length; h++) {
+            if (location.hostname.indexOf(adHosts[h]) !== -1) { adMatch = true; break; }
+        }
+        if (!adMatch) return;
 
         // ━━ 1. KILL AD TIMER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // RxJS timer(20000,50000) → setInterval(flush, 20000/50000).
