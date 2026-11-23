@@ -156,8 +156,8 @@ extension Browser {
     /// other half in Split View.
     private var shownPages: [WKWebView] {
         guard let active else { return [] }
-        let tabs = activeSplit.map { pair in pair.tabs.compactMap { id in tabs.first { $0.id == id } } } ?? [active]
-        return tabs.compactMap { $0.isWeb && !$0.asleep && !$0.floating ? $0.built : nil }
+        let shown = activeSplit.map { pair in pair.tabs.compactMap { id in tabs.first { $0.id == id } } } ?? [active]
+        return shown.compactMap { $0.isWeb && !$0.asleep && !$0.floating ? $0.built : nil }
     }
 
     /// `done` once each of `pages` has its new size and WebKit has put it
